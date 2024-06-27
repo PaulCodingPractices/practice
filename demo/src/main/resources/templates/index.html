@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Elevator Control System</title>
+</head>
+<body>
+    <h1>Elevator Control System</h1>
+
+    <h2>Pickup Request</h2>
+    <form id="pickup-form">
+        <label for="pickup-floor">Pickup Floor:</label>
+        <input type="number" id="pickup-floor" name="pickupFloor" required>
+        <label for="destination-floor">Destination Floor:</label>
+        <input type="number" id="destination-floor" name="destinationFloor" required>
+        <button type="submit">Request Pickup</button>
+    </form>
+
+    <h2>Update Elevator</h2>
+    <form id="update-form">
+        <label for="elevator-id">Elevator ID:</label>
+        <input type="number" id="elevator-id" name="elevatorId" required>
+        <label for="current-floor">Current Floor:</label>
+        <input type="number" id="current-floor" name="currentFloor" required>
+        <label for="target-floor">Target Floor:</label>
+        <input type="number" id="target-floor" name="targetFloor" required>
+        <button type="submit">Update Elevator</button>
+    </form>
+
+    <h2>Elevator Status</h2>
+    <button id="status-button">Get Status</button>
+    <ul id="status-list"></ul>
+
+    <script>
+        document.getElementById('pickup-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const pickupFloor = document.getElementById('pickup-floor').value;
+            const destinationFloor = document.getElementById('destination-floor').value;
+            const response = await fetch('/api/elevators/pickup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ pickupFloor, destinationFloor, userId: 1 })
+            });
+            alert('Pickup requested');
+        });
+
+        document.getElementById('update-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const elevatorId = document.getElementById('elevator-id').value;
+            const currentFloor = document.getElementById('current-floor').value;
+            const targetFloor = document.getElementById('target-floor').value;
+            const response = await fetch('/api/elevators/update', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ elevatorId, currentFloor, targetFloor })
+            });
+            alert('Elevator updated');
+        });
+
+        document.getElementById('status-button').addEventListener('click', async () => {
+            const response = await fetch('/api/elevators/status');
+            const statusList = await response.json();
+            const statusUl = document.getElementById('status-list');
+            statusUl.innerHTML = '';
+            statusList.forEach(status => {
+                const li = document.createElement('li');
+                li.textContent = `ID: ${status.id}, Current Floor: ${status.currentFloor}, Target Floor: ${status.targetFloor}`;
+                statusUl.appendChild(li);
+            });
+        });
+    </script>
+</body>
+</html>
